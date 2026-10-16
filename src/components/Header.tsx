@@ -16,6 +16,7 @@ import {
   Globe,
   LogIn,
   LogOut,
+  KeyRound,
   User as UserIcon
 } from 'lucide-react';
 import { auth, googleProvider, signInWithPopup, signOut, User } from '../firebase.js';
@@ -39,7 +40,9 @@ interface HeaderProps {
   onOpenGovernance: () => void;
   onClearSession: () => void;
   hasMessages: boolean;
-  currentUser: User | null;
+  currentUser: User | any | null;
+  onOpenOtpModal: () => void;
+  onSignOut?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -49,6 +52,8 @@ export const Header: React.FC<HeaderProps> = ({
   onClearSession,
   hasMessages,
   currentUser,
+  onOpenOtpModal,
+  onSignOut,
 }) => {
   const handleSignIn = async () => {
     try {
@@ -60,7 +65,11 @@ export const Header: React.FC<HeaderProps> = ({
 
   const handleSignOut = async () => {
     try {
-      await signOut(auth);
+      if (onSignOut) {
+        onSignOut();
+      } else {
+        await signOut(auth);
+      }
     } catch (err) {
       console.error(err);
     }
@@ -72,7 +81,7 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Brand & Slogan */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-amber-700/30 via-emerald-900/60 to-stone-900 border border-amber-500/40 shadow-inner">
+            <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-amber-700/30 via-emerald-950/60 to-stone-900 border border-amber-500/40 shadow-inner">
               <Scale className="w-5 h-5 text-amber-400" />
               <div className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" title="متصل بالتوثيق" />
             </div>
@@ -94,21 +103,28 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Mobile Auth button */}
           <div className="md:hidden flex items-center gap-1.5">
             {currentUser ? (
-              <button
-                onClick={handleSignOut}
-                className="flex items-center gap-1 p-1.5 rounded-lg bg-stone-900 border border-stone-800 text-xs text-stone-300"
-                title="تسجيل الخروج"
-              >
-                <LogOut className="w-3.5 h-3.5" />
-              </button>
+              <div className="flex items-center gap-1 bg-stone-900/90 px-2 py-1 rounded-lg border border-amber-500/30 text-xs">
+                <span className="text-amber-300 font-medium truncate max-w-[90px]">
+                  {currentUser.displayName || currentUser.email?.split('@')[0]}
+                </span>
+                <button
+                  onClick={handleSignOut}
+                  className="p-1 rounded text-stone-400 hover:text-rose-300 transition-colors"
+                  title="تسجيل الخروج"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                </button>
+              </div>
             ) : (
-              <button
-                onClick={handleSignIn}
-                className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-600 text-stone-950 text-xs font-bold"
-              >
-                <LogIn className="w-3.5 h-3.5" />
-                <span>دخول</span>
-              </button>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={onOpenOtpModal}
+                  className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-stone-950 text-xs font-bold transition-all shadow-sm"
+                  title="تسجيل الدخول بالبريد (OTP)"
+                >
+                  <span>دخول (OTP)</span>
+                </button>
+              </div>
             )}
           </div>
         </div>
@@ -269,13 +285,23 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
             </div>
           ) : (
-            <button
-              onClick={handleSignIn}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-stone-950 text-xs font-bold transition-all shadow-sm"
-            >
-              <LogIn className="w-3.5 h-3.5" />
-              <span>تسجيل الدخول (Google)</span>
-            </button>
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={onOpenOtpModal}
+                className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-stone-900 border border-amber-600/50 hover:bg-stone-850 text-amber-300 text-xs font-semibold transition-all shadow-sm"
+                title="تسجيل الدخول عبر كود التحقق بالبريد"
+              >
+                <KeyRound className="w-3.5 h-3.5" />
+                <span>دخول بالبريد (OTP)</span>
+              </button>
+              <button
+                onClick={handleSignIn}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-stone-950 text-xs font-bold transition-all shadow-sm"
+              >
+                <LogIn className="w-3.5 h-3.5" />
+                <span>Google</span>
+              </button>
+            </div>
           )}
 
           <button

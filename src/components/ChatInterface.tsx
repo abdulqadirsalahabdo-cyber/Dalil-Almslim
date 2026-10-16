@@ -46,6 +46,8 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [expandedSections, setExpandedSections] = useState<Record<string, { quran: boolean; fiqh: boolean; markdown: boolean }>>({});
 
+  const [loadingElapsed, setLoadingElapsed] = useState(0);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -55,6 +57,19 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   useEffect(() => {
     scrollToBottom();
   }, [messages, isLoading]);
+
+  useEffect(() => {
+    let interval: any;
+    if (isLoading) {
+      setLoadingElapsed(0);
+      interval = setInterval(() => {
+        setLoadingElapsed((prev) => prev + 1);
+      }, 1000);
+    } else {
+      setLoadingElapsed(0);
+    }
+    return () => clearInterval(interval);
+  }, [isLoading]);
 
   const toggleSection = (msgId: string, section: 'quran' | 'fiqh' | 'markdown') => {
     setExpandedSections((prev) => {
@@ -360,22 +375,119 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
           })
         )}
 
-        {/* Loading Spinner / Verification indicator */}
+        {/* Progressive Verification Skeleton Screen */}
         {isLoading && (
-          <div className="p-5 rounded-2xl bg-[#081a14] border border-amber-500/40 shadow-xl space-y-3 animate-pulse">
-            <div className="flex items-center gap-3">
-              <Scale className="w-5 h-5 text-amber-400 animate-spin" />
-              <div className="space-y-1">
-                <span className="text-sm font-bold text-amber-300 font-cairo">
-                  جاري تشغيل مسار الفحص والتحليل السباعي...
-                </span>
-                <p className="text-xs text-stone-400">
-                  فحص نصوص الوحيين · تتبع أسانيد الأحاديث · مضاهاة المذاهب الأربعة · رصد البصمة المعرفية
-                </p>
+          <div className="p-5 sm:p-6 rounded-2xl bg-[#081a14] border border-amber-500/50 shadow-2xl space-y-5 animate-in fade-in duration-300">
+            {/* Top Status Bar */}
+            <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-amber-900/40">
+              <div className="flex items-center gap-3">
+                <div className="relative flex items-center justify-center w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400">
+                  <Scale className="w-4 h-4 animate-spin" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-amber-300 font-cairo flex items-center gap-2">
+                    <span>جاري تشغيل مسار الفحص والتحقيق السباعي</span>
+                    <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                  </h4>
+                  <p className="text-[11px] text-stone-400">
+                    استقراء الأدلة وتخريج الأحاديث وتحرير المذاهب بدقة علمية
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 text-xs font-mono text-amber-400/90 bg-stone-900/90 px-2.5 py-1 rounded-lg border border-stone-800">
+                <span>⏱️</span>
+                <span>{loadingElapsed} ثانية</span>
               </div>
             </div>
-            <div className="h-1.5 w-full bg-stone-800 rounded-full overflow-hidden">
-              <div className="h-full bg-gradient-to-r from-amber-600 via-amber-400 to-emerald-500 rounded-full animate-marquee" />
+
+            {/* 5 Progressive Verification Stages */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 text-xs">
+              <div className={`p-2.5 rounded-xl border flex items-center gap-2 transition-all ${
+                loadingElapsed >= 0 
+                  ? 'bg-emerald-950/40 border-emerald-600/50 text-emerald-200' 
+                  : 'bg-stone-900/60 border-stone-800 text-stone-500'
+              }`}>
+                <span className={`w-2 h-2 rounded-full ${loadingElapsed < 2 ? 'bg-amber-400 animate-ping' : 'bg-emerald-400'}`} />
+                <span className="font-medium">1. تفكيك السؤال وعزل الادعاءات</span>
+              </div>
+
+              <div className={`p-2.5 rounded-xl border flex items-center gap-2 transition-all ${
+                loadingElapsed >= 2 
+                  ? 'bg-emerald-950/40 border-emerald-600/50 text-emerald-200' 
+                  : 'bg-stone-900/60 border-stone-800 text-stone-400'
+              }`}>
+                <span className={`w-2 h-2 rounded-full ${loadingElapsed >= 2 && loadingElapsed < 4 ? 'bg-amber-400 animate-ping' : loadingElapsed >= 4 ? 'bg-emerald-400' : 'bg-stone-600'}`} />
+                <span className="font-medium">2. استقراء القرآن وصحيح السنة</span>
+              </div>
+
+              <div className={`p-2.5 rounded-xl border flex items-center gap-2 transition-all ${
+                loadingElapsed >= 4 
+                  ? 'bg-emerald-950/40 border-emerald-600/50 text-emerald-200' 
+                  : 'bg-stone-900/60 border-stone-800 text-stone-400'
+              }`}>
+                <span className={`w-2 h-2 rounded-full ${loadingElapsed >= 4 && loadingElapsed < 6 ? 'bg-amber-400 animate-ping' : loadingElapsed >= 6 ? 'bg-emerald-400' : 'bg-stone-600'}`} />
+                <span className="font-medium">3. تحرير المذاهب الأربعة</span>
+              </div>
+
+              <div className={`p-2.5 rounded-xl border flex items-center gap-2 transition-all ${
+                loadingElapsed >= 6 
+                  ? 'bg-emerald-950/40 border-emerald-600/50 text-emerald-200' 
+                  : 'bg-stone-900/60 border-stone-800 text-stone-400'
+              }`}>
+                <span className={`w-2 h-2 rounded-full ${loadingElapsed >= 6 && loadingElapsed < 8 ? 'bg-amber-400 animate-ping' : loadingElapsed >= 8 ? 'bg-emerald-400' : 'bg-stone-600'}`} />
+                <span className="font-medium">4. ضبط علة الخلاف والترجيح</span>
+              </div>
+
+              <div className={`p-2.5 rounded-xl border flex items-center gap-2 transition-all sm:col-span-2 md:col-span-1 ${
+                loadingElapsed >= 8 
+                  ? 'bg-amber-950/40 border-amber-600/50 text-amber-200' 
+                  : 'bg-stone-900/60 border-stone-800 text-stone-400'
+              }`}>
+                <span className={`w-2 h-2 rounded-full ${loadingElapsed >= 8 ? 'bg-amber-400 animate-pulse' : 'bg-stone-600'}`} />
+                <span className="font-medium">5. صياغة بطاقة التوثيق والبصمة</span>
+              </div>
+            </div>
+
+            {/* Shimmering Skeleton Mock Output */}
+            <div className="space-y-3 pt-2">
+              {/* Summary line skeleton */}
+              <div className="p-3.5 rounded-xl bg-stone-900/70 border border-stone-800/80 space-y-2">
+                <div className="h-3.5 bg-gradient-to-r from-amber-500/20 via-amber-500/40 to-amber-500/20 rounded w-full animate-pulse" />
+                <div className="h-3 bg-stone-800 rounded w-5/6 animate-pulse" />
+                <div className="h-3 bg-stone-800/60 rounded w-4/6 animate-pulse" />
+              </div>
+
+              {/* Evidences Card Skeleton */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="p-3.5 rounded-xl bg-[#061811] border border-amber-500/20 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 rounded bg-amber-500/30 animate-pulse" />
+                    <div className="h-3 bg-amber-500/30 rounded w-1/3 animate-pulse" />
+                  </div>
+                  <div className="h-3 bg-stone-800 rounded w-full animate-pulse" />
+                  <div className="h-2.5 bg-stone-800/60 rounded w-2/3 animate-pulse" />
+                </div>
+
+                <div className="p-3.5 rounded-xl bg-[#061811] border border-amber-500/20 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 rounded bg-emerald-500/30 animate-pulse" />
+                    <div className="h-3 bg-emerald-500/30 rounded w-1/3 animate-pulse" />
+                  </div>
+                  <div className="h-3 bg-stone-800 rounded w-full animate-pulse" />
+                  <div className="h-2.5 bg-stone-800/60 rounded w-2/3 animate-pulse" />
+                </div>
+              </div>
+
+              {/* Fiqh Opinions Matrix Skeleton */}
+              <div className="p-3.5 rounded-xl bg-stone-900/60 border border-stone-800 space-y-2">
+                <div className="h-3 bg-stone-700/60 rounded w-1/4 animate-pulse" />
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+                  <div className="h-10 bg-stone-800/60 rounded-lg animate-pulse" />
+                  <div className="h-10 bg-stone-800/60 rounded-lg animate-pulse" />
+                  <div className="h-10 bg-stone-800/60 rounded-lg animate-pulse" />
+                  <div className="h-10 bg-stone-800/60 rounded-lg animate-pulse" />
+                </div>
+              </div>
             </div>
           </div>
         )}
@@ -385,12 +497,36 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
       {/* Input Dock Area */}
       <div className="pt-2 pb-3 bg-[#08110e]/95 backdrop-blur-md">
+        {/* Quick Suggestion Pills if conversation already active */}
+        {messages.length > 0 && (
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-2 text-[11px] no-scrollbar">
+            <span className="text-stone-400 shrink-0 font-medium flex items-center gap-1">
+              <Sparkles className="w-3 h-3 text-amber-400" />
+              <span>اقتراحات:</span>
+            </span>
+            {quickBenchPrompts.map((b, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => {
+                  setSelectedMode(b.mode);
+                  onSendMessage(b.query, b.mode);
+                }}
+                disabled={isLoading}
+                className="px-2.5 py-1 rounded-lg bg-stone-900/90 hover:bg-stone-800 border border-stone-800 hover:border-amber-500/40 text-stone-300 hover:text-amber-300 whitespace-nowrap transition-colors"
+              >
+                {b.label}
+              </button>
+            ))}
+          </div>
+        )}
+
         {/* Mode Selector Segmented Controls */}
         <div className="flex items-center justify-between gap-2 mb-2 px-1">
           <div className="flex items-center gap-1 bg-stone-900/80 p-1 rounded-xl border border-stone-800 text-xs overflow-x-auto no-scrollbar">
             <button
               onClick={() => setSelectedMode('quick')}
-              className={`px-3 py-1 rounded-lg font-medium transition-all ${
+              className={`px-3 py-1 rounded-lg font-medium transition-all whitespace-nowrap ${
                 selectedMode === 'quick'
                   ? 'bg-amber-600 text-stone-950 font-bold shadow-sm'
                   : 'text-stone-400 hover:text-stone-200'
@@ -400,7 +536,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
             </button>
             <button
               onClick={() => setSelectedMode('academic')}
-              className={`px-3 py-1 rounded-lg font-medium transition-all ${
+              className={`px-3 py-1 rounded-lg font-medium transition-all whitespace-nowrap ${
                 selectedMode === 'academic'
                   ? 'bg-amber-600 text-stone-950 font-bold shadow-sm'
                   : 'text-stone-400 hover:text-stone-200'
@@ -410,7 +546,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
             </button>
             <button
               onClick={() => setSelectedMode('educational')}
-              className={`px-3 py-1 rounded-lg font-medium transition-all ${
+              className={`px-3 py-1 rounded-lg font-medium transition-all whitespace-nowrap ${
                 selectedMode === 'educational'
                   ? 'bg-amber-600 text-stone-950 font-bold shadow-sm'
                   : 'text-stone-400 hover:text-stone-200'
@@ -420,7 +556,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
             </button>
             <button
               onClick={() => setSelectedMode('debate')}
-              className={`px-3 py-1 rounded-lg font-medium transition-all ${
+              className={`px-3 py-1 rounded-lg font-medium transition-all whitespace-nowrap ${
                 selectedMode === 'debate'
                   ? 'bg-amber-600 text-stone-950 font-bold shadow-sm'
                   : 'text-stone-400 hover:text-stone-200'
