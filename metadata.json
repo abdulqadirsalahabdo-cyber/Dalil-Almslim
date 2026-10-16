@@ -1,0 +1,6 @@
+{
+  "name": "ميزان | MIZAN AI",
+  "description": "منصة الذكاء الاصطناعي الموثوقة لتحقيق وتحليل المعرفة الإسلامية والتاريخية وإسناد الأدلة وتفكيك الادعاءات",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

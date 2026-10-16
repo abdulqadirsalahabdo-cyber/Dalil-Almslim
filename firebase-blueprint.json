@@ -1,0 +1,61 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile data for authenticated scholars and researchers",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "email"]
+    },
+    "SavedResearch": {
+      "title": "SavedResearch",
+      "description": "Archived research reports, hadith verifications, and fiqh analyses saved by the user",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "query": { "type": "string" },
+        "summary": { "type": "string" },
+        "mode": { "type": "string" },
+        "fullMarkdown": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "userId", "query", "summary", "createdAt"]
+    },
+    "GameScore": {
+      "title": "GameScore",
+      "description": "Leaderboard scores for the 3D Scholar's Quest verification game",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "userDisplayName": { "type": "string" },
+        "score": { "type": "number" },
+        "correctCount": { "type": "number" },
+        "accuracyRate": { "type": "number" },
+        "completedAt": { "type": "string" }
+      },
+      "required": ["id", "userId", "score", "completedAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profile documents"
+    },
+    "/users/{userId}/saved_researches/{researchId}": {
+      "schema": "SavedResearch",
+      "description": "Researches saved by the specific user"
+    },
+    "/leaderboard/{scoreId}": {
+      "schema": "GameScore",
+      "description": "Public leaderboard scores from the verification game"
+    }
+  }
+}

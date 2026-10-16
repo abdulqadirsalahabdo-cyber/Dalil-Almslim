@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --color-emerald-deep: #062319;
+    --color-emerald-card: #0c2d22;
+    --color-gold-accent: #cfa859;
+    --color-gold-light: #e8cca0;
+  }
+  
+  body {
+    font-family: 'Cairo', system-ui, -apple-system, sans-serif;
+    background-color: #08110e;
+    color: #f3f4f6;
+  }
+}
+
+.font-amiri {
+  font-family: 'Amiri', serif;
+}
+
+.font-cairo {
+  font-family: 'Cairo', sans-serif;
+}
+
+.font-naskh {
+  font-family: 'Noto Naskh Arabic', serif;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(10, 25, 20, 0.4);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(207, 168, 89, 0.3);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(207, 168, 89, 0.5);
+}
+
+/* Islamic pattern background overlay */
+.bg-islamic-pattern {
+  background-image: radial-gradient(rgba(207, 168, 89, 0.07) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
